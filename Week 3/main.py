@@ -1,4 +1,4 @@
-import math , os , curses , glob
+import math , os  , glob
 
 class node:
   # Name(identify the node), nValue(value of said node) ,_fPointer(),_bPointer()
@@ -8,7 +8,7 @@ class node:
     self.fPointer = _fPointer
     self.bPointer = _bPointer
 
-
+dataSets = {}
 nodes = []
 bias  = node("bias",0,0,0)
 target = 0
@@ -49,9 +49,10 @@ def chooseDirectory():
         return listOfDirs[int(selected)-1]
 
 
-def populateNodes(dataSet):
-  for i in range(0, len(dataSet)):
-    nodes.append(node(f"{i}",dataset[0],))
+def populateDataSets(_dataSets):
+  for i in range(0,len(_dataSets)):
+    dataSets[f"DataSet{i}"] = _dataSets[i]
 
+populateDataSets(getData(chooseDirectory()))
 
-print(getData(chooseDirectory()))
+print(dataSets)
