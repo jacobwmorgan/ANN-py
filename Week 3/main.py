@@ -3,7 +3,7 @@
 from glob import glob
 from random import seed
 from random import random
-from math import exp
+from math import exp 
 
 class Node:
   # Name(identify the Node), nValue(value of said Node) ,_fPointer(),_bPointer()
@@ -38,7 +38,7 @@ class Network:
 
   def forwardPropagate(self,network , row): #Forward propagation input to a network layer , returns the outputs from the last layer (output layer)
     inputs = row
-    for layers in network:
+    for layer in network:
       newInputs = []
       for neuron in layer:
         activation = self.netFunction(inputs,neuron['weights'])
@@ -48,7 +48,7 @@ class Network:
     return inputs
   
   def backPropagate_error(self,network , expected): #Back propagation error
-    for i in reversed(range(0,len(network))) :
+    for i in reversed(range(len(network))) :
       layer = network[i]
       errors = list()
       if i != len(network)-1:
@@ -63,15 +63,39 @@ class Network:
           neuron = layer[j]
           errors.append(neuron['output'] - expected[j])
       
-      for i in range(len(layer)):
+      for j in range(len(layer)):
         neuron = layer[j]
         neuron['delta'] = errors[j] * self.transferDerivative(neuron['output'])
         
-          
+  def updateWeights(self,network,row,learningRate):
+    for i in range(len(network)):
+      inputs  = row[:-1]
+      if i !=0:
+        inputs = [neuron['output'] for neuron in network[i-1]]
+      for neuron in network[i]:
+        for j in range(len(inputs)):
+          neuron['weights'][j] -= learningRate * neuron['delta'] * inputs[j]
+        neuron['weights'][-1] -= learningRate * neuron['delta']
+  
+  def trainNetwork(self,network,train,learningRate,nEpoch,nOutputs):
+    for epoch in range(nEpoch):
+      sumError = 0
+      for row in train:
+        outputs = self.forwardPropagate(network,row)
+        expected = [0 for i in range(nOutputs)]
+        expected[row[-1]] = 1
+        sumError += sum([(expected[i]-outputs[i])**2 for i in range(len(expected))])
+        self.backPropagate_error(network,expected)
+        self.updateWeights(network,row,learningRate)
+      print(f">Epoch {epoch} , Learning Rate = {learningRate} , Error = {sumError}")
+  
+  def predict(self,network,row):
+    outputs = self.forwardPropagate(network,row)
+    return outputs.index(max(outputs))
 
     
 def getData(direc):
-  arr = [])
+  arr = []
   with open(direc,'r') as fl:
     for line in fl:
       data = line.split()
@@ -102,8 +126,19 @@ def populateNodes(dataSet):
 
 
 seed(1)
-network = Network(2,1,2)
-
-
-
-
+dataset = [[2.7810836,2.550537003,0],
+	[1.465489372,2.362125076,0],
+	[3.396561688,4.400293529,0],
+	[1.38807019,1.850220317,0],
+	[3.06407232,3.005305973,0],
+	[7.627531214,2.759262235,1],
+	[5.332441248,2.088626775,1],
+	[6.922596716,1.77106367,1],
+	[8.675418651,-0.242068655,1],
+	[7.673756466,3.508563011,1]]
+n = Network(0,0,0)
+network = [[{'weights': [-1.482313569067226, 1.8308790073202204, 1.078381922048799]}, {'weights': [0.23244990332399884, 0.3621998343835864, 0.40289821191094327]}],
+	[{'weights': [2.5001872433501404, 0.7887233511355132, -1.1026649757805829]}, {'weights': [-2.429350576245497, 0.8357651039198697, 1.0699217181280656]}]]
+for row in dataset:
+	prediction = n.predict(network, row)
+	print('Expected=%d, Got=%d' % (row[-1], prediction))
