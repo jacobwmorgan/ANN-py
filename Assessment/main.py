@@ -29,7 +29,7 @@ class Network:
     return net
   
   
-  def train()
+ 
   
   
 

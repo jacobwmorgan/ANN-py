@@ -6,9 +6,6 @@ class Neuron:
   def __init__(self,_value,_weights):
     self.value = _value
     self.weights = _weights
-  
-
-
 class Network:
   def __init__(self,_dataSet, _nInputs , _nHidden,_nOutputs):
     self.network = list()
@@ -23,11 +20,6 @@ class Network:
     self.outputLayer = []
     for i in range(_nOutputs):
       self.outputLayer.append(Neuron(0,[random() for i in range(_nOutputs)]))
-   
-
-    
-
-  
 
 def getData(direc):
   arr = []
