@@ -7,33 +7,53 @@ class Node:
     self.inputs = _inputs
     self.weights = _weights
     self.outputs = _outputs
+    self.error = 0
     
   def netFunc(self):
     sum = 0
+
     for i in range(0,len(self.inputs)):
-      sum += (self.weights[i] * self.inputs[i])
+      sum += self.weights[i] * self.inputs[i]
     return sum
   
   def sigmoid(self):
     return 1/ (1 + exp(-self.netFunc()))
 
 class Network:
-  def __init__(self,_inputs,_hidden,_output,_expected):
+  def __init__(self,_inputs,_expected,_hidden,_output,_expected):
     self.inputs = _inputs
+    self.expected = _expected
     self.hidden = _hidden
     self.output = _output
     self.expected = _expected
+    '''
     print(f"=====\nNew network created\nInputs = {self.inputs}")
     print(f"Hidden Layer =")
     for node in self.hidden: print(node.name,"|",node.weights)
     print(f"Output Layer =")
     for node in self.output: print(node.name,"|",node.weights)
+    '''
   
   def forwardStep(self):
     outputs = []
     for node in self.hidden:
-      outputs.append(node.sigmoid())
-    print(outputs)
+      output = node.sigmoid()
+      outputs.append(output)
+      node.outputs = output
+    outputs = [1] + outputs
+    for node in self.output:
+      node.inputs = outputs
+    outputs = []
+    for node in self.output:
+      output = node.netFunc()
+      outputs.append(output)
+      node.outputs = output
+
+  def errorFunc(self):
+    net
+  
+  def backwardProp(self):
+    pass
     
 
 def getData(direc):
@@ -97,7 +117,7 @@ epochs = 100
 weights = {'hidden':[[0.9,0.74,0.8,0.35],[0.45,0.13,0.4,0.97],[0.36,0.68,0.1,0.96]],'output':[[0.98,0.35,0.5,0.9],[0.92,0.8,0.13,0.8]]}
 dataSet = populateDataSet(dataSet)
 nodes = populateNodes(dataSet[0][0],layers,weights)
-network = Network(dataSet[0][0],nodes['hidden'],nodes['output'],dataSet[0][1])
+network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],dataSet[0][1])
 network.forwardStep()
 
 ## main stuff
