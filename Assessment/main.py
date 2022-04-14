@@ -20,12 +20,13 @@ class Node:
     return 1/ (1 + exp(-self.netFunc()))
 
 class Network:
-  def __init__(self,_inputs,_expected,_hidden,_output,_expected):
+  def __init__(self,_inputs,_expected,_hidden,_output,_learningRate):
     self.inputs = _inputs
     self.expected = _expected
     self.hidden = _hidden
     self.output = _output
-    self.expected = _expected
+    self.learningRate = _learningRate
+    
     '''
     print(f"=====\nNew network created\nInputs = {self.inputs}")
     print(f"Hidden Layer =")
@@ -50,7 +51,20 @@ class Network:
       node.outputs = output
 
   def errorFunc(self):
-    pass
+
+
+    #Output errors
+    for i in range(len(self.output)):
+      print(self.output[i].name,self.output[i].outputs,self.expected[i])
+      self.output[i].error = self.expected[i] - self.output[i].outputs
+      print(self.output[i].error)
+    for i in range(len(self.hidden)):
+      print(self.hidden[i].name,self.hidden[i].outputs)
+      
+      #for j in range(len(self.output)):
+  
+      self.hidden[i].error = self.hidden[i].outputs * (1 - self.hidden[i].outputs)* (()+())
+
   
   def updateWeights(self):
     pass
@@ -92,8 +106,14 @@ def chooseDirectory():
 
 def populateDataSet(dataSet):
   newDataSet = []
+  print("\n\nData Sets\n~~~~~~~~~~~~~~~~~~~~~~~~~")
+  print(dataSet)
   for i in range(len(dataSet)):
+    print(i,dataSet[i])
+    print(f"{i}Before {newDataSet}")
     newDataSet.append([[],[]])
+    print(f"{i}After {newDataSet}")
+    print(newDataSet[i])
 
     for j in range(len(dataSet[i])):
       if j > layers['hidden']-1:
@@ -101,6 +121,7 @@ def populateDataSet(dataSet):
       else:
         newDataSet[i][0].append(dataSet[i][j])
     newDataSet[i][0] = [1.00] + newDataSet[i][0]
+  print("~~~~~~~~~~~~~~~~~~~~~~~~~")
   return newDataSet
       
 
@@ -112,26 +133,39 @@ def populateNodes(dataSet,layers,weights):
       nodes[i].append(newNode)
   return nodes
 
+def getEpochs():
+  while True:
+    try:
+      value = int(input("\nAmount of Epochs : "))
+      break
+    except ValueError:
+      print("Invalid Input")
+      
+  return value
 dataSet = getData(chooseDirectory())
 layers = {'hidden':3,'output': 2}
-epochs = 100
 
 #node [ 4 , 5 , 6 ],7 8
 weights = {'hidden':[[0.9,0.74,0.8,0.35],[0.45,0.13,0.4,0.97],[0.36,0.68,0.1,0.96]],'output':[[0.98,0.35,0.5,0.9],[0.92,0.8,0.13,0.8]]}
 dataSet = populateDataSet(dataSet)
+epochs = getEpochs()
 nodes = populateNodes(dataSet[0][0],layers,weights)
-network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],dataSet[0][1])
+network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],0.1)
+print(network.inputs,network.expected)
 network.forwardStep()
+#network.errorFunc()
 
 ## main stuff
 '''
-for i in range(0,iterations):
+for i in range(0,len(dataSet)):
   nodes = populateNodes(dataSet[i][0],layers,weights)
-  network = Network(dataSet[0][0],nodes['hidden'],nodes['output'],dataSet[0][1])
+  network = Network(dataSet[i][0],nodes['hidden'],nodes['output'],dataSet[i][1])
   for j in range(epochs):
+    print("lmao")
     ## Do shit
     # - >> Forward 
     # - << Backward
     # - >> work out error Rate
     # - >> update weights
+
 '''
