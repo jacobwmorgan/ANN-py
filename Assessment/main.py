@@ -50,8 +50,11 @@ class Network:
       node.outputs = output
 
   def errorFunc(self):
-    net
+    pass
   
+  def updateWeights(self):
+    pass
+    
   def backwardProp(self):
     pass
     
