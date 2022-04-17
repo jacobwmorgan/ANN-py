@@ -1,5 +1,6 @@
 import random , os
 from math import exp
+import matplotlib.pyplot as plt
 
 class Node:
   def __init__(self,_name,_weights,_inputs,_outputs):
@@ -8,9 +9,11 @@ class Node:
     self.weights = _weights
     self.outputs = _outputs
     self.error = 0
+    self.errors = []
     
   def netFunc(self):
     sum = 0
+    print(self.inputs,self.weights)
     for i in range(0,len(self.inputs)):
       sum += self.weights[i] * self.inputs[i]
     return sum
@@ -53,11 +56,13 @@ class Network:
     #Output errors
     for i in range(len(self.output)):
       self.output[i].error = self.expected[i] - self.output[i].outputs
-      
+      self.output[i].errors.append(self.output[i].error)
+      #print(self.output[i].errors)
     #Hidden Errors
     for i in range(0,len(self.hidden)):
       self.hidden[i].error = (self.hidden[i].outputs * (1 - self.hidden[i].outputs) * ((self.output[0].weights[i+1] * self.output[0].error) + (self.output[1].weights[i+1] * self.output[1].error)))
-      
+      self.hidden[i].errors.append(self.hidden[i].error)
+      #print(self.hidden[i].errors)
   def updateWeights(self):
     deltaWeights = {'hidden':[[],[],[]],'output':[[],[]]}
     #Hidden updated weights
@@ -95,6 +100,14 @@ class Network:
       node = self.output[i]
       newWeights['output'][i] = node.weights
     return newWeights
+  
+  def outputErrors(self):
+    newErrors = [[],[]]
+    for i in range(len(self.output)):
+      node = self.output[i]
+      newErrors [i].append(node.errors)
+    return newErrors
+    
 
 def getData(direc):
   arr = []
@@ -103,7 +116,8 @@ def getData(direc):
       line.strip("\n")
       data = line.split()
       for i in range(0,len(data)):
-        data[i] = float(data[i])
+        if data[i] != "?":
+          data[i] = float(data[i])
       arr.append(data)
   return arr
  
@@ -156,27 +170,63 @@ def getEpochs():
       break
     except ValueError:
       print("Invalid Input")
-      
-  return value
+  epochs = []
+  for i in range(value):
+    epochs.append(i+1)
+  return epochs
 
-#Testing shit
 dataSet = getData(chooseDirectory())
 layers = {'hidden':3,'output': 2}
 
 #node [ 4 , 5 , 6 ],7 8
 weights = {'hidden':[[0.9,0.74,0.8,0.35],[0.45,0.13,0.4,0.97],[0.36,0.68,0.1,0.96]],'output':[[0.98,0.35,0.5,0.9],[0.92,0.8,0.13,0.8]]}
+errors = []
+squaredErrors = [0,0]
+
 dataSet = populateDataSet(dataSet)
-#epochs = getEpochs()
+epochs = getEpochs()
 nodes = populateNodes(dataSet[0][0],layers,weights)
 network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],0.1)
-print(f"Original - {weights}" )
+#print(f"Original - {weights}" )
 network.forwardStep()
 network.errorFunc()
 network.backProp()
 weights = network.outputWeights()
-print(f"New - {weights}" )
+#print(f"New - {weights}" )
 
 ## main stuff
+
+for i in range(0,len(epochs)):
+  for j in range(len(dataSet)):
+    nodes = populateNodes(dataSet[j][0],layers,weights)
+    network = Network(dataSet[j][0],dataSet[j][1],nodes['hidden'],nodes['output'],0.1)
+    network.forwardStep()
+    network.errorFunc()
+    network.backProp()
+    newErrors = network.outputErrors()
+    weights = network.outputWeights()
+    tempError = 0
+    for i in range(0,len(newErrors)):
+      outputNode = newErrors[i]
+      tempError += (outputNode[0][0])**2
+    tempError = tempError / 2
+    errors.append(tempError)
+    
+
+
+
+
+plt.plot(epochs,errors)
+plt.xlabel("Epoch")
+plt.ylabel("Squared Error")
+
+plt.title("Learning Curve ")
+plt.show()
+#print(errors)
+#print(squaredErrors)
+
+
+
 '''
 for i in range(0,len(dataSet)):
   nodes = populateNodes(dataSet[i][0],layers,weights)
