@@ -13,7 +13,6 @@ class Node:
     
   def netFunc(self):
     sum = 0
-    print(self.inputs,self.weights)
     for i in range(0,len(self.inputs)):
       sum += self.weights[i] * self.inputs[i]
     return sum
@@ -185,18 +184,12 @@ squaredErrors = [0,0]
 
 dataSet = populateDataSet(dataSet)
 epochs = getEpochs()
-nodes = populateNodes(dataSet[0][0],layers,weights)
-network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],0.1)
-#print(f"Original - {weights}" )
-network.forwardStep()
-network.errorFunc()
-network.backProp()
-weights = network.outputWeights()
 #print(f"New - {weights}" )
 
 ## main stuff
 
 for i in range(0,len(epochs)):
+  tempErrors = []
   for j in range(len(dataSet)):
     nodes = populateNodes(dataSet[j][0],layers,weights)
     network = Network(dataSet[j][0],dataSet[j][1],nodes['hidden'],nodes['output'],0.1)
@@ -205,13 +198,19 @@ for i in range(0,len(epochs)):
     network.backProp()
     newErrors = network.outputErrors()
     weights = network.outputWeights()
-    tempError = 0
-    for i in range(0,len(newErrors)):
-      outputNode = newErrors[i]
-      tempError += (outputNode[0][0])**2
-    tempError = tempError / 2
-    errors.append(tempError)
     
+    nodeErrors = 0
+    for x in range(0,len(newErrors)):
+      outputNode = newErrors[x]
+
+      nodeErrors += ((outputNode[0][0])**2)
+    tempErrors.append(nodeErrors*0.5)
+  
+  epochError = 0
+  for error in tempErrors:
+    epochError += error
+  errors.append(epochError)
+  
 
 
 
