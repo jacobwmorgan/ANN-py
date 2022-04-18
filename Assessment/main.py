@@ -27,14 +27,6 @@ class Network:
     self.hidden = _hidden
     self.output = _output
     self.learningRate = _learningRate
-    
-    '''
-    print(f"=====\nNew network created\nInputs = {self.inputs}")
-    print(f"Hidden Layer =")
-    for node in self.hidden: print(node.name,"|",node.weights)
-    print(f"Output Layer =")
-    for node in self.output: print(node.name,"|",node.weights)
-    '''
   
   def forwardStep(self):
     outputs = []
@@ -189,6 +181,9 @@ def plotGraph(epochs , errors):
 
   plt.title("Learning Curve ")
   plt.show()
+  
+def weightTable(newWeight):
+  pass
 
 dataSet = getData(chooseDirectory())
 layers = {'hidden':3,'output': 2}
