@@ -72,7 +72,7 @@ class Network:
         
     #Output updated weights
     for i in range(len(self.output)):
-      deltaWeights['output'][i].append(self.learningRate * self.hidden[i].error * 1)
+      deltaWeights['output'][i].append(self.learningRate * self.output[i].error * 1)
       for j in range(len(self.hidden)):
         newVal = self.learningRate * self.output[i].error * self.hidden[j].outputs
         deltaWeights['output'][i].append(newVal) 
@@ -106,7 +106,14 @@ class Network:
       node = self.output[i]
       newErrors [i].append(node.errors)
     return newErrors
-    
+  
+  def squaredErrors(self):
+    newErrors = 0
+    for i in range(0,len(self.output)):
+      outputNode = self.output[i]
+      newErrors += (outputNode.error ** 2)
+      
+    return newErrors/2
 
 def getData(direc):
   arr = []
@@ -174,6 +181,15 @@ def getEpochs():
     epochs.append(i+1)
   return epochs
 
+
+def plotGraph(epochs , errors):
+  plt.plot(epochs,errors)
+  plt.xlabel("Epoch")
+  plt.ylabel("Squared Error")
+
+  plt.title("Learning Curve ")
+  plt.show()
+
 dataSet = getData(chooseDirectory())
 layers = {'hidden':3,'output': 2}
 
@@ -198,29 +214,19 @@ for i in range(0,len(epochs)):
     network.backProp()
     newErrors = network.outputErrors()
     weights = network.outputWeights()
-    
-    nodeErrors = 0
-    for x in range(0,len(newErrors)):
-      outputNode = newErrors[x]
+    tempErrors.append(network.squaredErrors())
+  average = 0 
+  for x in tempErrors:
+    average += x
+  errors.append(average / 6)
 
-      nodeErrors += ((outputNode[0][0])**2)
-    tempErrors.append(nodeErrors*0.5)
-  
-  epochError = 0
-  for error in tempErrors:
-    epochError += error
-  errors.append(epochError)
+plotGraph(epochs,errors)
   
 
 
 
 
-plt.plot(epochs,errors)
-plt.xlabel("Epoch")
-plt.ylabel("Squared Error")
 
-plt.title("Learning Curve ")
-plt.show()
 #print(errors)
 #print(squaredErrors)
 
