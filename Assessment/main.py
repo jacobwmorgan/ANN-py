@@ -216,13 +216,14 @@ for i in range(0,len(epochs)):
     network.backProp()
     newErrors = network.outputErrors()
     newWeights = network.outputWeights()
-    for node in range(len(newWeights['hidden'])):
-      for weight in range(len(newWeights['hidden'][node])):
-        savedWeights['hidden'][node][weight].append(newWeights['hidden'][node][weight])
+    if j == len(dataSet)-1:
+      for node in range(len(newWeights['hidden'])):
+        for weight in range(len(newWeights['hidden'][node])):
+          savedWeights['hidden'][node][weight].append(newWeights['hidden'][node][weight])
 
-    for node in range(len(newWeights['output'])):
-      for weight in range(len(newWeights['output'][node])):
-        savedWeights['output'][node][weight].append(newWeights['output'][node][weight])
+      for node in range(len(newWeights['output'])):
+        for weight in range(len(newWeights['output'][node])):
+          savedWeights['output'][node][weight].append(newWeights['output'][node][weight])
 
     
     weights = newWeights
