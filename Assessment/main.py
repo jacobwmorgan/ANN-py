@@ -110,7 +110,7 @@ class Network:
 
 
 def softmax(output1,output2):
-  return output1/(output1 + output2)
+  return exp(output1)/(exp(output1) + exp(output2))
 
 def getData(direc):
   arr = []
@@ -173,17 +173,21 @@ def plotGraph(epochs , errors):
   
 def weightTable(newWeight):
   fileExists = os.path.exists("./weights.txt")
-  if fileExists != True:
-    with open("./weights.txt","w") as fp:
-      fp.close()
       
-  if os.stat("./weights.txt").st_size == 0:
-    with open("./weights.txt","w") as fp:
+  if os.stat("./weights.txt").st_size != 0:
+    with open("./weights.txt","r+") as fp:
+      fp.truncate(0)
+  
+  with open("./weights.txt","w") as fp:
+    
+    for step in range(0,len(newWeight['hidden'][0][0])):
       for node in newWeight:
         for l in range(len(newWeight[node])):
-          print(newWeight[node][l])
-    
+          for i in range(len(newWeight[node][l])):
+            fp.write("{:.3f},".format(newWeight[node][l][i][step]))
+      fp.write("\n")
 
+print("~~~~~~\nTraining")
 
 dataSet = getData("data-CMP2020M-item1-train.txt")
 
@@ -200,6 +204,7 @@ epochs = getEpochs()
 #print(f"New - {weights}" )
 
 ## main stuff
+
 
 for i in range(0,len(epochs)):
   tempErrors = []
@@ -225,20 +230,20 @@ for i in range(0,len(epochs)):
   average = 0 
   for x in tempErrors:
     average += x
-  errors.append(average / 6)
+  errors.append(average)
 
-#print(savedWeights)
 
-'''
-print("Time to test it")
 
-dataSet = populateDataSet(getData("data-CMP2020M-item1-train.txt"))
 
-nodes = populateNodes(dataSet[j][0],layers,weights)
-network = Network(dataSet[j][0],dataSet[j][1],nodes['hidden'],nodes['output'],0.1)
+print("~~~~~~~~~~\nTime to test it")
+
+dataSet = populateDataSet(getData("data-CMP2020M-item1-test.txt"))
+
+nodes = populateNodes(dataSet[0][0],layers,weights)
+network = Network(dataSet[0][0],dataSet[0][1],nodes['hidden'],nodes['output'],0.1)
 network.forwardStep()
-print(network.output[0].outputs)
-'''
+#print("{:.3f},{:.3f}".format(network.output[0].outputs,network.output[1].outputs))
+print("Probability Distribution\n 7 : {:.3f}, 8 : {:.3f}".format(softmax(network.output[0].outputs,network.output[1].outputs),softmax(network.output[1].outputs,network.output[0].outputs)))
 
 weightTable(savedWeights)
 
