@@ -1,5 +1,5 @@
-import random , os
-from math import exp
+import random , os , csv
+from math import exp , log10,floor
 import matplotlib.pyplot as plt
 
 class Node:
@@ -107,6 +107,11 @@ class Network:
       
     return newErrors/2
 
+
+
+def softmax(output1,output2):
+  return output1/(output1 + output2)
+
 def getData(direc):
   arr = []
   with open(direc,'r') as fl:
@@ -118,24 +123,8 @@ def getData(direc):
           data[i] = float(data[i])
       arr.append(data)
   return arr
- 
-def chooseDirectory():
-  listOfDirs = []
-  for(root,dirs,file) in os.walk("./"):
-    for f in file:
-      if '.txt' in f:
-        listOfDirs.append(f)
-  while True:
-    for i in range(0,len(listOfDirs)):
-      print(f"{i+1}:{listOfDirs[i]}")
-    selected = input(">")
-    if selected.isnumeric() == False:
-      print("Invalid input\n")
-    else:
-      if int(selected) > len(listOfDirs) or int(selected) < 0:
-        print("Invalid Input\n")
-      else:
-        return listOfDirs[int(selected)-1]
+
+
 
 def populateDataSet(dataSet):
   newDataSet = []
@@ -183,12 +172,25 @@ def plotGraph(epochs , errors):
   plt.show()
   
 def weightTable(newWeight):
-  pass
+  fileExists = os.path.exists("./weights.txt")
+  if fileExists != True:
+    with open("./weights.txt","w") as fp:
+      fp.close()
+      
+  if os.stat("./weights.txt").st_size == 0:
+    with open("./weights.txt","w") as fp:
+      for node in newWeight:
+        for l in range(len(newWeight[node])):
+          print(newWeight[node][l])
+    
 
-dataSet = getData(chooseDirectory())
+
+dataSet = getData("data-CMP2020M-item1-train.txt")
+
 layers = {'hidden':3,'output': 2}
 
 #node [ 4 , 5 , 6 ],7 8
+savedWeights = {'hidden':[[[0.9],[0.74],[0.8],[0.35]],[[0.45],[0.13],[0.4],[0.97]],[[0.36],[0.68],[0.1],[0.96]]],'output':[[[0.98],[0.35],[0.5],[0.9]],[[0.92],[0.8],[0.13],[0.8]]]}
 weights = {'hidden':[[0.9,0.74,0.8,0.35],[0.45,0.13,0.4,0.97],[0.36,0.68,0.1,0.96]],'output':[[0.98,0.35,0.5,0.9],[0.92,0.8,0.13,0.8]]}
 errors = []
 squaredErrors = [0,0]
@@ -208,35 +210,36 @@ for i in range(0,len(epochs)):
     network.errorFunc()
     network.backProp()
     newErrors = network.outputErrors()
-    weights = network.outputWeights()
+    newWeights = network.outputWeights()
+    for node in range(len(newWeights['hidden'])):
+      for weight in range(len(newWeights['hidden'][node])):
+        savedWeights['hidden'][node][weight].append(newWeights['hidden'][node][weight])
+
+    for node in range(len(newWeights['output'])):
+      for weight in range(len(newWeights['output'][node])):
+        savedWeights['output'][node][weight].append(newWeights['output'][node][weight])
+
+    
+    weights = newWeights
     tempErrors.append(network.squaredErrors())
   average = 0 
   for x in tempErrors:
     average += x
   errors.append(average / 6)
 
+#print(savedWeights)
+
+'''
+print("Time to test it")
+
+dataSet = populateDataSet(getData("data-CMP2020M-item1-train.txt"))
+
+nodes = populateNodes(dataSet[j][0],layers,weights)
+network = Network(dataSet[j][0],dataSet[j][1],nodes['hidden'],nodes['output'],0.1)
+network.forwardStep()
+print(network.output[0].outputs)
+'''
+
+weightTable(savedWeights)
+
 plotGraph(epochs,errors)
-  
-
-
-
-
-
-#print(errors)
-#print(squaredErrors)
-
-
-
-'''
-for i in range(0,len(dataSet)):
-  nodes = populateNodes(dataSet[i][0],layers,weights)
-  network = Network(dataSet[i][0],nodes['hidden'],nodes['output'],dataSet[i][1])
-  for j in range(epochs):
-    print("lmao")
-    ## Do shit
-    # - >> Forward 
-    # - << Backward
-    # - >> work out error Rate
-    # - >> update weights
-
-'''
