@@ -68,7 +68,7 @@ class Network:
       for j in range(len(self.hidden)):
         newVal = self.learningRate * self.output[i].error * self.hidden[j].outputs
         deltaWeights['output'][i].append(newVal) 
-    return deltaWeights  
+    return deltaWeights 
   
   def backProp(self):
     deltaWeights = self.updateWeights()
